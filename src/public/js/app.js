@@ -8,13 +8,13 @@ const room = document.getElementById("room");
 room.hidden = true;
 
 // 방에 입장하면 실행될 함수
-function showRoom() {
+function showRoom(newCount) {
     // 화면 표시
     welcome.hidden = true;
     room.hidden = false;
     // 방 이름 표시
     const h3= room.querySelector("h3");
-    h3.innerText = `Room ${roomName}`;
+    h3.innerText = `Room ${roomName} (${newCount})`;
     // submit을 누르면 메시지 표시
     const msgForm = room.querySelector("#msg");
     const nameForm = room.querySelector("#name")
@@ -63,12 +63,16 @@ function handleRoomSubmit(event) {
 form.addEventListener("submit", handleRoomSubmit);
 
 // 누군가 들어옴
-socket.on("welcome", (user) => {
+socket.on("welcome", (user, newCount) => {
+    const h3 = room.querySelector("h3");
+    h3.innerText = `Room ${roomName} (${newCount})`;
     addMessage(`${user} Joined!`);
 });
 
 // 누군가 나감
-socket.on("bye", (left) => {
+socket.on("bye", (left, newCount) => {
+    const h3 = room.querySelector("h3");
+    h3.innerText = `Room ${roomName} (${newCount})`;
     addMessage(`${left} left...`);
 });
 
