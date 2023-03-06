@@ -16,6 +16,27 @@ app.get("/*", (_, res) => res.redirect("/"));
 const httpServer = http.createServer(app);
 const wsServer = SocketIO(httpServer);
 
+// public room 찾기
+function publicRooms() {
+    // const sids = wsServer.sockets.adapter.sids;
+    // const rooms = wsServer.sockets.adapter.rooms;
+    const { 
+        sockets: {
+            adapter: { sids, rooms },
+        },
+    } = wsServer;
+
+    // sids = socket id
+    // <Map> sids에서 key를 가져왔는데, undefined이면 client가 생성한 방(공개 방)
+    const publicRooms = [];
+    rooms.forEach((_, key) => {
+        if (sids.get(key) === undefined) {
+            publicRooms.push(key);
+        }
+    });
+    return publicRooms;
+}
+
 // 연결되었을 때의 이벤트
 wsServer.on("connection", (socket) => {
     // socket이 연결되었을 때 모든 socket이 공지 방에 입장
@@ -26,6 +47,7 @@ wsServer.on("connection", (socket) => {
 
     // onAny: 미들웨어처럼, 모든 event에서 다음의 함수를 수행
     socket.onAny((event) => {
+        console.log(wsServer.sockets.adapter);
         console.log(`Socket Event: ${event}`);
     });
 
