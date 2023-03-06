@@ -16,8 +16,10 @@ function showRoom() {
     const h3= room.querySelector("h3");
     h3.innerText = `Room ${roomName}`;
     // submit을 누르면 메시지 표시
-    const form = room.querySelector("form");
-    form.addEventListener("submit", handleMessageSubmit);
+    const msgForm = room.querySelector("#msg");
+    const nameForm = room.querySelector("#name")
+    msgForm.addEventListener("submit", handleMessageSubmit);
+    nameForm.addEventListener("submit", handleNicknameSubmit);
 }
 
 let roomName;
@@ -29,9 +31,15 @@ function addMessage(message) {
     ul.appendChild(li);
 }
 
+function handleNicknameSubmit(event) {
+    event.preventDefault();
+    const input = room.querySelector("#name input");
+    socket.emit("nickname", input.value);
+}
+
 function handleMessageSubmit(event) {
     event.preventDefault();
-    const input = room.querySelector("input");
+    const input = room.querySelector("#msg input");
     const value = input.value;
     // backend로 이벤트 new_message와 인수 input.value, roomName, 함수를 보냄
     socket.emit("new_message", input.value, roomName, () => {
@@ -55,13 +63,13 @@ function handleRoomSubmit(event) {
 form.addEventListener("submit", handleRoomSubmit);
 
 // 누군가 들어옴
-socket.on("welcome", () => {
-    addMessage("someone Joined!");
+socket.on("welcome", (user) => {
+    addMessage(`${user} Joined!`);
 });
 
 // 누군가 나감
-socket.on("bye", () => {
-    addMessage("someone left...");
+socket.on("bye", (left) => {
+    addMessage(`${left} left...`);
 });
 
 // 메시지를 받음
