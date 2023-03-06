@@ -58,6 +58,8 @@ wsServer.on("connection", (socket) => {
         done();
         // event를 roomName에 있는 모든 클라이언트에게 emit함
         socket.to(roomName).emit("welcome", socket.nickname);
+        // 메시지를 모든 socket에게 보냄
+        wsServer.sockets.emit("room_change", publicRooms());
     });
 
     // disconnecting: 연결이 아직 끊어지지 않음(room 정보가 살아 있음)
@@ -68,6 +70,10 @@ wsServer.on("connection", (socket) => {
         );
     });
 
+    socket.on("disconnect", () => {
+        wsServer.sockets.emit("room_change", publicRooms());
+    });
+    
     // room에 msg를 보냄
     socket.on("new_message", (msg, room, done) => {
         socket.to(room).emit("new_message", `${socket.nickname}: ${msg}`);

@@ -74,3 +74,19 @@ socket.on("bye", (left) => {
 
 // 메시지를 받음
 socket.on("new_message", addMessage);
+
+// 방에 변화가 생김
+socket.on("room_change", (rooms) => {
+    const roomList = welcome.querySelector("ul");
+    roomList.innerHTML = "";
+    // room이 하나도 없으면 화면을 비움
+    if (rooms.length === 0) {
+        return;
+    }
+    // 방 리스트를 화면에 출력
+    rooms.forEach(room => {
+        const li = document.createElement("li");
+        li.innerText = room;
+        roomList.append(li);
+    });
+});
