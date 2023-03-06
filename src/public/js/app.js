@@ -15,9 +15,30 @@ function showRoom() {
     // 방 이름 표시
     const h3= room.querySelector("h3");
     h3.innerText = `Room ${roomName}`;
+    // submit을 누르면 메시지 표시
+    const form = room.querySelector("form");
+    form.addEventListener("submit", handleMessageSubmit);
 }
 
 let roomName;
+
+function addMessage(message) {
+    const ul = room.querySelector("ul");
+    const li = document.createElement("li");
+    li.innerText = message;
+    ul.appendChild(li);
+}
+
+function handleMessageSubmit(event) {
+    event.preventDefault();
+    const input = room.querySelector("input");
+    const value = input.value;
+    // backend로 이벤트 new_message와 인수 input.value, roomName, 함수를 보냄
+    socket.emit("new_message", input.value, roomName, () => {
+        addMessage(`You: ${value}`);
+    });
+    input.value = "";
+}
 
 function handleRoomSubmit(event) {
     event.preventDefault();
@@ -32,3 +53,16 @@ function handleRoomSubmit(event) {
 }
 
 form.addEventListener("submit", handleRoomSubmit);
+
+// 누군가 들어옴
+socket.on("welcome", () => {
+    addMessage("someone Joined!");
+});
+
+// 누군가 나감
+socket.on("bye", () => {
+    addMessage("someone left...");
+});
+
+// 메시지를 받음
+socket.on("new_message", addMessage);
